@@ -12,8 +12,7 @@ mpDraw = mp.solutions.drawing_utils
 pTime = 0
 cTime = 0
 
-
-serial_port = '/dev/cu.usbmodem2101'
+serial_port = '/dev/cu.usbmodem101'
 ser = serial.Serial(serial_port, baudrate=9600, timeout=1)
 
 while True:
@@ -24,23 +23,14 @@ while True:
     if result.multi_hand_landmarks:
         for handLms in result.multi_hand_landmarks:
             mpDraw.draw_landmarks(img, handLms, mpHands.HAND_CONNECTIONS)
-
-            index_fingertip = handLms.landmark[8]  # Tip of the index finger
-            index_knuckle_middle = handLms.landmark[7]  # Middle knuckle of the index finger
-            index_knuckle_base = handLms.landmark[6]  # Base knuckle of the index finger
-
-            # Calculate the vectors from the knuckle to the fingertip
-            vector1 = (index_fingertip.x - index_knuckle_middle.x, index_fingertip.y - index_knuckle_middle.y)
-            vector2 = (index_knuckle_base.x - index_knuckle_middle.x, index_knuckle_base.y - index_knuckle_middle.y)
-
-            # Calculate the angle between the two vectors
-            angle = math.degrees(math.acos((vector1[0] * vector2[0] + vector1[1] * vector2[1]) /
-                                           (math.sqrt(vector1[0] ** 2 + vector1[1] ** 2) *
-                                            math.sqrt(vector2[0] ** 2 + vector2[1] ** 2))))
-            angle_integer = int(angle)
-            msg = f"{angle_integer}\n".encode()
-            ser.write(msg)
-            print(msg)
+            middle_finger_tip = handLms.landmark[mpHands.HandLandmark.MIDDLE_FINGER_TIP]
+            middle_finger_mcp = handLms.landmark[mpHands.HandLandmark.MIDDLE_FINGER_MCP]
+            if middle_finger_tip.y > middle_finger_mcp.y:
+                msg = f"1".encode()
+                ser.write(msg)
+            if middle_finger_tip.y < middle_finger_mcp.y:
+                msg = f"0".encode()
+                ser.write(msg)
 
     cTime = time.time()
     fps = 1 / (cTime - pTime)
@@ -48,5 +38,3 @@ while True:
     # cv.putText(img, str(int(fps)), (10, 70), cv.FONT_HERSHEY_PLAIN, 3, (255, 0, 255), 3)
     cv.imshow('Webcam', img)
     cv.waitKey(1)
-
-

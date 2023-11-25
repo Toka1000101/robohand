@@ -7,12 +7,12 @@ Servo index;
 Servo thumb;
 Servo wrist;
 
-byte pinkyDigitalPort = 7;
-byte ringDigitalPort = 6;
-byte middleDigitalPort = 5;
-byte indexDigitalPort = 4;
-byte thumbDigitalPort = 3;
-byte wristDigitalPort = 2;
+byte pinkyDigitalPort = 4;
+byte ringDigitalPort = 3;
+byte middleDigitalPort = 2;
+byte indexDigitalPort = 5;
+byte thumbDigitalPort = 6;
+byte wristDigitalPort = 7;
 
 void setupServos(byte angle) {
   pinky.attach(pinkyDigitalPort);
@@ -67,6 +67,8 @@ void expandFingers() {
   thumb.write(0);
 }
 
+
+
 void setup() {
   setupServos(0);
   Serial.begin(9600);
@@ -78,9 +80,9 @@ void loop() {
     char msg = Serial.read();
 
     if(msg == '1') {
-      bendFingers();
-    }else if (msg == '0') {
-      expandFingers();
+      ring.write(170);
+    } else if (msg == '0'){
+      ring.write(0);
     }
   }
 
