@@ -40,7 +40,7 @@ void servosTest() {
   thumb.write(0);
   wrist.write(0);
   
-  delay(1000);
+  delay(5000);
 
   pinky.write(180);
   ring.write(180);
@@ -49,14 +49,39 @@ void servosTest() {
   thumb.write(180);
   wrist.write(180);
 
-  delay(1000);
+  delay(5000);
+}
+void bendFingers() {
+  pinky.write(120);
+  ring.write(120);
+  middle.write(120);
+  index.write(120);
+  thumb.write(120);
+}
+
+void expandFingers() {
+  pinky.write(0);
+  ring.write(0);
+  middle.write(0);
+  index.write(0);
+  thumb.write(0);
 }
 
 void setup() {
   setupServos(0);
+  Serial.begin(9600);
 }
 
 void loop() {
-  // servosTest();
+  
+  if(Serial.available() > 0){
+    char msg = Serial.read();
+
+    if(msg == '1') {
+      bendFingers();
+    }else if (msg == '0') {
+      expandFingers();
+    }
+  }
 
 }
