@@ -8,10 +8,10 @@ Servo thumb;
 Servo wrist;
 
 byte pinkyDigitalPort = 4;
-byte ringDigitalPort = 3;
-byte middleDigitalPort = 2;
-byte indexDigitalPort = 5;
-byte thumbDigitalPort = 6;
+byte ringDigitalPort = 5;
+byte middleDigitalPort = 6;
+byte indexDigitalPort = 2;
+byte thumbDigitalPort = 3;
 byte wristDigitalPort = 7;
 
 void setupServos(byte angle) {
@@ -67,23 +67,37 @@ void expandFingers() {
   thumb.write(0);
 }
 
-
-
 void setup() {
   setupServos(0);
   Serial.begin(9600);
 }
 
+
+int signals[5] = {0,0,0,0,0};
+
 void loop() {
-  
-  if(Serial.available() > 0){
-    char msg = Serial.read();
-
-    if(msg == '1') {
-      ring.write(170);
-    } else if (msg == '0'){
-      ring.write(0);
+  if (Serial.available()) {
+    String input = "";
+    while(Serial.available() == 5) {
+      for(int i = 0; i < 5; i++){
+        signals[i] = Serial.read() - '0';
+      }
+      Serial.flush();  
     }
-  }
 
+
+    for(int i = 0; i < 5; i++){
+      Serial.print(signals[i]);
+      Serial.print("-");
+    }
+
+    if(signals[0] == 1) {thumb.write(180);} else {thumb.write(0);}
+    if(signals[1] == 1) {index.write(180);} else {index.write(0);}
+    if(signals[2] == 1) {middle.write(180);} else {middle.write(0);}
+    if(signals[3] == 1) {ring.write(180);} else {ring.write(0);}
+    if(signals[4] == 1) {pinky.write(180);} else {pinky.write(0);}
+
+    Serial.flush();
+    Serial.println();
+  }
 }
