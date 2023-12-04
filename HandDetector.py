@@ -1,3 +1,5 @@
+import math
+
 import cv2 as cv
 import mediapipe as mp
 import time
@@ -14,6 +16,14 @@ cTime = 0
 serial_port = '/dev/cu.usbmodem1101'
 ser = serial.Serial(serial_port, baudrate=9600, timeout=1)
 msg_prev = ""
+
+
+def calculate_angle(x1, y1, x2, y2):
+    angle_rad = math.atan2(y2 - y1, x2 - x1)
+    angle_deg = math.degrees(angle_rad)
+    return angle_deg
+
+
 while True:
     success, img = capture.read()
     imgRgb = cv.cvtColor(img, cv.COLOR_BGR2RGB)
@@ -37,12 +47,27 @@ while True:
             ring_mcp = handLms.landmark[mpHands.HandLandmark.RING_FINGER_MCP]
             pinky_mcp = handLms.landmark[mpHands.HandLandmark.PINKY_MCP]
 
+            thumb_base = handLms.landmark[mpHands.HandLandmark.THUMB_CMC]
+
             tips_y = [thumb_tip.y, index_tip.y, middle_tip.y, ring_tip.y, pinky_tip.y]
             mcps_y = [thumb_mcp.y, index_mcp.y, middle_mcp.y, ring_mcp.y, pinky_mcp.y]
 
             msg = [0, 0, 0, 0, 0]
             for i in range(len(tips_y)):
-                if tips_y[i] >= mcps_y[i]:
+                if i == 0:
+                    angle = calculate_angle(thumb_mcp.x,
+                                            thumb_mcp.y,
+                                            thumb_tip.x,
+                                            thumb_tip.y)
+
+                    angle_abs = abs(angle)
+                    # print(angle_abs)
+                    if angle_abs > 100:
+                        msg[i] = 1
+                    else:
+                        msg[i] = 0
+
+                elif tips_y[i] >= mcps_y[i]:
                     msg[i] = 1
                 elif tips_y[i] < mcps_y[i]:
                     msg[i] = 0

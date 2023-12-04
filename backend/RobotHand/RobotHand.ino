@@ -7,13 +7,14 @@ Servo index;
 Servo thumb;
 Servo wrist;
 
-byte pinkyDigitalPort = 4;
-byte ringDigitalPort = 5;
+byte pinkyDigitalPort = 2;
+byte ringDigitalPort = 7;
 byte middleDigitalPort = 6;
-byte indexDigitalPort = 2;
+byte indexDigitalPort = 4;
 byte thumbDigitalPort = 3;
-byte wristDigitalPort = 7;
+byte wristDigitalPort = 5;
 
+// index - 2, middle - 3, rign - 4, pinky - 6
 void setupServos(byte angle) {
   pinky.attach(pinkyDigitalPort);
   ring.attach(ringDigitalPort);
@@ -73,20 +74,20 @@ void setup() {
 }
 
 
-int signals[5] = {0,0,0,0,0};
+int signals[6] = {0,0,0,0,0,0};
 
 void loop() {
   if (Serial.available()) {
     String input = "";
     while(Serial.available() == 5) {
-      for(int i = 0; i < 5; i++){
+      for(int i = 0; i < 6; i++){
         signals[i] = Serial.read() - '0';
       }
-      Serial.flush();  
+      Serial.flush();
     }
 
 
-    for(int i = 0; i < 5; i++){
+    for(int i = 0; i < 6; i++){
       Serial.print(signals[i]);
       Serial.print("-");
     }
@@ -96,6 +97,7 @@ void loop() {
     if(signals[2] == 1) {middle.write(180);} else {middle.write(0);}
     if(signals[3] == 1) {ring.write(180);} else {ring.write(0);}
     if(signals[4] == 1) {pinky.write(180);} else {pinky.write(0);}
+    if(signals[5] == 1) {wrist.write(180);} else {wrist.write(0);}
 
     Serial.flush();
     Serial.println();
